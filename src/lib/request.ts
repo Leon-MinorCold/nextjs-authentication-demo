@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { toast } from '@/hooks/use-toast';
+import { HttpCode } from '@/types/api';
 
 interface ApiError {
   message: string;
@@ -19,10 +20,6 @@ const http = axios.create({
 // 请求拦截器
 http.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
     return config;
   },
   (error: AxiosError) => {
@@ -38,6 +35,12 @@ http.interceptors.response.use(
   (error: AxiosError) => {
     // 处理 Axios 错误
     const data = error.response?.data as ApiError | undefined;
+    const status = error.response?.status;
+
+    // 如果是 401 未授权错误，不显示 toast
+    if (status === HttpCode.UNAUTHORIZED) {
+      return Promise.reject(data || { message: '未登录' });
+    }
 
     // 使用服务器返回的错误信息
     if (data?.message) {
@@ -65,7 +68,6 @@ http.interceptors.response.use(
     // 处理 HTTP 状态码错误
     const statusMessages: Record<number, string> = {
       400: '请求参数错误',
-      401: '未授权，请重新登录',
       403: '拒绝访问',
       404: '请求的资源不存在',
       500: '服务器错误',
@@ -74,13 +76,7 @@ http.interceptors.response.use(
       504: '网关超时',
     };
 
-    const message = statusMessages[error.response?.status || 0] || '请求失败';
-
-    // 特殊状态码处理
-    if (error.response?.status === 401) {
-      // localStorage.removeItem('token');
-      // window.location.href = '/login';
-    }
+    const message = statusMessages[status || 0] || '请求失败';
 
     toast({
       variant: 'destructive',

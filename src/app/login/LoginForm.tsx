@@ -11,6 +11,7 @@ import {
 import { loginSchema, LoginInput } from '@/types/user';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { login } from '@/services/auth';
 
 const LoginForm = () => {
   const form = useForm<LoginInput>({
@@ -23,6 +24,8 @@ const LoginForm = () => {
 
   const onSubmit = async (data: LoginInput) => {
     // TODO: register user
+
+    const res = await login(data);
   };
 
   return (

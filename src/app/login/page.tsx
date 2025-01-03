@@ -13,7 +13,7 @@ import RegisterForm from '@/app/login/RegisterForm';
 import LoginForm from '@/app/login/LoginForm';
 
 const Page = () => {
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
 
   return (
     <Card className="w-[350px]">
