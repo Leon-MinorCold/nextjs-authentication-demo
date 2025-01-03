@@ -1,9 +1,9 @@
 import { SignJWT, jwtVerify } from 'jose';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
-const REFRESH_SECRET = new TextEncoder().encode(process.env.REFRESH_TOKEN_SECRET);
-const JWT_ISSUER = 'your-app-name';
-const JWT_AUDIENCE = 'your-app-users';
+const REFRESH_SECRET = new TextEncoder().encode(process.env.JWT_REFRESH_TOKEN_SECRET);
+const JWT_ISSUER = process.env.JWT_ISSUER || 'nextjs-sample-issuer';
+const JWT_AUDIENCE = process.env.JWT_AUDIENCE || 'nextjs-sample-audience';
 
 export interface JWTPayload {
   id: number;
