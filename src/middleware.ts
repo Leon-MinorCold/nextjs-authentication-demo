@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { JWT } from '@/lib/jwt';
+import { BusinessCode, HttpCode, createErrorResponse } from '@/types/api';
 
 // 定义路由权限配置
 const routeConfig = {
@@ -36,46 +37,81 @@ export async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get('access_token')?.value;
 
   if (!accessToken) {
-    // 处理 refresh token 逻辑
+    // 尝试获取 refresh_token
     const refreshToken = request.cookies.get('refresh_token')?.value;
     if (!refreshToken) {
-      // API 路由返回 401，页面路由重定向到登录
+      // API 路由返回统一格式的错误响应
       if (pathname.startsWith('/api')) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        return NextResponse.json(createErrorResponse(BusinessCode.UNAUTHORIZED, '未登录'), {
+          status: HttpCode.UNAUTHORIZED,
+        });
       }
       return NextResponse.redirect(new URL(`/login?redirect=${pathname}`, request.url));
     }
 
     try {
-      // Refresh token 验证和处理逻辑...
-      // ... 之前的 refresh token 处理代码 ...
+      // 验证 refresh token
+      const payload = await JWT.verifyRefreshToken(refreshToken);
+      if (!payload) {
+        if (pathname.startsWith('/api')) {
+          return NextResponse.json(
+            createErrorResponse(BusinessCode.TOKEN_EXPIRED, 'refresh token 已过期'),
+            { status: HttpCode.UNAUTHORIZED }
+          );
+        }
+        return NextResponse.redirect(new URL(`/login?redirect=${pathname}`, request.url));
+      }
     } catch (error) {
       if (pathname.startsWith('/api')) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        return NextResponse.json(
+          createErrorResponse(BusinessCode.INVALID_TOKEN, 'refresh token 无效'),
+          { status: HttpCode.UNAUTHORIZED }
+        );
       }
-      return NextResponse.redirect(new URL('/login', request.url));
+      return NextResponse.redirect(new URL(`/login?redirect=${pathname}`, request.url));
     }
   }
 
   try {
     // 验证 access token
-    if (!accessToken) {
-      throw new Error('No token provided');
-    }
     const payload = await JWT.verifyAccessToken(accessToken);
     if (!payload) {
-      throw new Error('Invalid token');
+      if (pathname.startsWith('/api')) {
+        return NextResponse.json(
+          createErrorResponse(BusinessCode.TOKEN_EXPIRED, 'access token 已过期'),
+          { status: HttpCode.UNAUTHORIZED }
+        );
+      }
+      return NextResponse.redirect(new URL(`/login?redirect=${pathname}`, request.url));
     }
 
     // 检查管理员路由权限
-    if (
-      (routeConfig.admin.some(route => pathname.startsWith(route)) ||
-        routeConfig.api.admin.some(route => pathname.startsWith(route))) &&
-      payload.role !== 'admin'
-    ) {
+    const isAdminRoute =
+      routeConfig.admin.some(route => pathname.startsWith(route)) ||
+      routeConfig.api.admin.some(route => pathname.startsWith(route));
+
+    if (isAdminRoute && payload.role !== 'admin') {
       if (pathname.startsWith('/api')) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        return NextResponse.json(
+          createErrorResponse(BusinessCode.NO_PERMISSION, '需要管理员权限'),
+          { status: HttpCode.FORBIDDEN }
+        );
       }
+      return NextResponse.redirect(new URL('/unauthorized', request.url));
+    }
+
+    // 检查受保护路由权限
+    const isProtectedRoute =
+      routeConfig.protected.some(route => pathname.startsWith(route)) ||
+      routeConfig.api.protected.some(route => pathname.startsWith(route));
+
+    if (isProtectedRoute && !payload.role) {
+      if (pathname.startsWith('/api')) {
+        return NextResponse.json(createErrorResponse(BusinessCode.NO_PERMISSION, '需要用户权限'), {
+          status: HttpCode.FORBIDDEN,
+        });
+      }
+      // Todo: 待补充 /unauthorized 路由
       return NextResponse.redirect(new URL('/unauthorized', request.url));
     }
 
@@ -91,9 +127,12 @@ export async function middleware(request: NextRequest) {
     });
   } catch (error) {
     if (pathname.startsWith('/api')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json(
+        createErrorResponse(BusinessCode.INVALID_TOKEN, 'access token 无效'),
+        { status: HttpCode.UNAUTHORIZED }
+      );
     }
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL(`/login?redirect=${pathname}`, request.url));
   }
 }
 

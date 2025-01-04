@@ -40,7 +40,8 @@ export class JWT {
   }
 
   // 验证访问令牌
-  static async verifyAccessToken(token: string) {
+  static async verifyAccessToken(token?: string) {
+    if (!token) return null;
     try {
       const { payload } = await jwtVerify(token, JWT_SECRET, {
         issuer: JWT_ISSUER,
@@ -53,7 +54,8 @@ export class JWT {
   }
 
   // 验证刷新令牌
-  static async verifyRefreshToken(token: string) {
+  static async verifyRefreshToken(token?: string) {
+    if (!token) return null;
     try {
       const { payload } = await jwtVerify(token, REFRESH_SECRET, {
         issuer: JWT_ISSUER,
