@@ -36,7 +36,6 @@ export interface UserInfo {
   email: string;
   username: string;
   role: string;
-  accessToken?: string;
 }
 
 export interface UserStore {

@@ -1,3 +1,6 @@
+'use client';
+
+import { RegisterInput, registerSchema } from '@/types/user';
 import {
   Form,
   Button,
@@ -8,11 +11,13 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui';
-import { RegisterInput, registerSchema } from '@/types/user';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useRegister } from '@/hooks/useAuth';
 
-const RegisterForm = () => {
+export default function RegisterForm() {
+  const { mutate, isPending } = useRegister();
+
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -24,7 +29,12 @@ const RegisterForm = () => {
   });
 
   const onSubmit = async (data: RegisterInput) => {
-    // TODO: register user
+    try {
+      mutate(data);
+    } catch (error) {
+      // 错误已经在 request 拦截器中处理
+      console.error('Registration failed:', error);
+    }
   };
 
   return (
@@ -86,12 +96,10 @@ const RegisterForm = () => {
           )}
         />
 
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full" disabled={isPending} loading={isPending}>
           注册
         </Button>
       </form>
     </Form>
   );
-};
-
-export default RegisterForm;
+}

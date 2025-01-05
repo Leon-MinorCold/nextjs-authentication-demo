@@ -2,34 +2,13 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { JWT } from '@/lib/jwt';
 import { BusinessCode, HttpCode, createErrorResponse } from '@/types/api';
-
-// 定义路由权限配置
-const routeConfig = {
-  // 公开路由 - 无需认证
-  public: ['/login', '/register', '/', '/about'],
-
-  // 需要认证的路由
-  protected: ['/dashboard', '/profile'],
-
-  // 需要管理员权限的路由
-  admin: ['/admin'],
-
-  // API 路由配置
-  api: {
-    public: ['/api/auth/login', '/api/auth/register'],
-    protected: ['/api/users'],
-    admin: ['/api/admin'],
-  },
-};
+import { routeConfig, routeUtils } from '@/lib/route';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 检查是否是公开路由
-  if (
-    routeConfig.public.some(route => pathname.startsWith(route)) ||
-    routeConfig.api.public.some(route => pathname.startsWith(route))
-  ) {
+  if (routeUtils.isPublicRoute(pathname)) {
     return NextResponse.next();
   }
 
@@ -41,7 +20,7 @@ export async function middleware(request: NextRequest) {
     const refreshToken = request.cookies.get('refresh_token')?.value;
     if (!refreshToken) {
       // API 路由返回统一格式的错误响应
-      if (pathname.startsWith('/api')) {
+      if (routeUtils.isApiRoute(pathname)) {
         return NextResponse.json(createErrorResponse(BusinessCode.UNAUTHORIZED, '未登录'), {
           status: HttpCode.UNAUTHORIZED,
         });
@@ -53,7 +32,7 @@ export async function middleware(request: NextRequest) {
       // 验证 refresh token
       const payload = await JWT.verifyRefreshToken(refreshToken);
       if (!payload) {
-        if (pathname.startsWith('/api')) {
+        if (routeUtils.isApiRoute(pathname)) {
           return NextResponse.json(
             createErrorResponse(BusinessCode.TOKEN_EXPIRED, 'refresh token 已过期'),
             { status: HttpCode.UNAUTHORIZED }
@@ -62,7 +41,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL(`/login?redirect=${pathname}`, request.url));
       }
     } catch (error) {
-      if (pathname.startsWith('/api')) {
+      if (routeUtils.isApiRoute(pathname)) {
         return NextResponse.json(
           createErrorResponse(BusinessCode.INVALID_TOKEN, 'refresh token 无效'),
           { status: HttpCode.UNAUTHORIZED }
@@ -76,7 +55,7 @@ export async function middleware(request: NextRequest) {
     // 验证 access token
     const payload = await JWT.verifyAccessToken(accessToken);
     if (!payload) {
-      if (pathname.startsWith('/api')) {
+      if (routeUtils.isApiRoute(pathname)) {
         return NextResponse.json(
           createErrorResponse(BusinessCode.TOKEN_EXPIRED, 'access token 已过期'),
           { status: HttpCode.UNAUTHORIZED }
@@ -91,7 +70,7 @@ export async function middleware(request: NextRequest) {
       routeConfig.api.admin.some(route => pathname.startsWith(route));
 
     if (isAdminRoute && payload.role !== 'admin') {
-      if (pathname.startsWith('/api')) {
+      if (routeUtils.isApiRoute(pathname)) {
         return NextResponse.json(
           createErrorResponse(BusinessCode.NO_PERMISSION, '需要管理员权限'),
           { status: HttpCode.FORBIDDEN }
@@ -106,7 +85,7 @@ export async function middleware(request: NextRequest) {
       routeConfig.api.protected.some(route => pathname.startsWith(route));
 
     if (isProtectedRoute && !payload.role) {
-      if (pathname.startsWith('/api')) {
+      if (routeUtils.isApiRoute(pathname)) {
         return NextResponse.json(createErrorResponse(BusinessCode.NO_PERMISSION, '需要用户权限'), {
           status: HttpCode.FORBIDDEN,
         });
@@ -126,7 +105,7 @@ export async function middleware(request: NextRequest) {
       },
     });
   } catch (error) {
-    if (pathname.startsWith('/api')) {
+    if (routeUtils.isApiRoute(pathname)) {
       return NextResponse.json(
         createErrorResponse(BusinessCode.INVALID_TOKEN, 'access token 无效'),
         { status: HttpCode.UNAUTHORIZED }
