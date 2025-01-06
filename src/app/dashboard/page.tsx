@@ -1,5 +1,7 @@
-const Dashboard = () => {
-  return <h1>this is Dashboard page</h1>;
-};
+import PageGuard from '@/components/PageGuard'
 
-export default Dashboard;
+const Dashboard = () => {
+	return <PageGuard requireAuth>This is dashboard</PageGuard>
+}
+
+export default Dashboard
