@@ -17,10 +17,13 @@ export default function PageGuard({
 }: PageGuardProps) {
 	const router = useRouter()
 	const pathname = usePathname()
-	const { isAuthenticated, user, isInitialized } = useUserStore()
+	const { isAuthenticated, user, isInitialized, isLoggingOut } = useUserStore()
 
 	useEffect(() => {
 		if (!isInitialized) return
+
+		// 如果正在登出，不执行重定向
+		if (isLoggingOut) return
 
 		// 如果需要认证且用户未登录，重定向到登录页
 		if (requireAuth && (!isAuthenticated || !user)) {

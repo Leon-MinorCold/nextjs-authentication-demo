@@ -71,19 +71,22 @@ export function useRegister() {
 
 export function useLogout() {
 	const router = useRouter()
-	const { logout: storeLogout } = useUserStore()
+	const { logout: storeLogout, setLoggingOut } = useUserStore()
 	const queryClient = useQueryClient()
 	const { toast } = useToast()
 
 	return useMutation({
-		mutationFn: () => logout(),
+		mutationFn: async () => {
+			setLoggingOut(true)
+			return logout()
+		},
 		onSuccess: () => {
 			storeLogout()
 			queryClient.removeQueries({ queryKey: ['user'] })
 			toast({
 				title: '注销成功',
 			})
-			router.push('/login')
+			router.replace('/login')
 			router.refresh()
 		},
 	})
