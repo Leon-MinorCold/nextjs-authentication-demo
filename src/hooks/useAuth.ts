@@ -71,19 +71,19 @@ export function useRegister() {
 
 export function useLogout() {
 	const router = useRouter()
-	const setUser = useUserStore(state => state.setUser)
+	const { logout: storeLogout } = useUserStore()
 	const queryClient = useQueryClient()
 	const { toast } = useToast()
 
 	return useMutation({
 		mutationFn: () => logout(),
 		onSuccess: () => {
-			setUser(null)
+			storeLogout()
 			queryClient.removeQueries({ queryKey: ['user'] })
-			router.push('/login')
 			toast({
 				title: '注销成功',
 			})
+			router.push('/login')
 			router.refresh()
 		},
 	})
@@ -92,7 +92,7 @@ export function useLogout() {
 export function useUser(options = {}) {
 	return useQuery({
 		queryKey: ['user'],
-		queryFn: () => getMe(),
+		queryFn: getMe,
 		retry: false,
 		staleTime: 5 * 60 * 1000, // 5分钟内数据被认为是新鲜的
 		gcTime: 10 * 60 * 1000, // 改用 gcTime 替代 cacheTime

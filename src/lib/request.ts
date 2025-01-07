@@ -34,6 +34,8 @@ http.interceptors.response.use(
 	},
 	(error: AxiosError) => {
 		// 处理 Axios 错误
+
+		console.log('axios error', error)
 		const data = error.response?.data as ApiError | undefined
 		const status = error.response?.status
 
@@ -46,7 +48,7 @@ http.interceptors.response.use(
 		if (data?.message) {
 			toast({
 				variant: 'destructive',
-				title: '错误',
+				title: 'Error',
 				description: data.message,
 			})
 			return Promise.reject(data)

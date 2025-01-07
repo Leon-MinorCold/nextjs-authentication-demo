@@ -24,7 +24,7 @@ export default function PageGuard({
 
 		// 如果需要认证且用户未登录，重定向到登录页
 		if (requireAuth && (!isAuthenticated || !user)) {
-			router.push(`/login?redirect=${pathname}`)
+			router.push('/login')
 			return
 		}
 

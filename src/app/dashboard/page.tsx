@@ -1,7 +1,48 @@
+'use client'
+
 import PageGuard from '@/components/PageGuard'
+import useUserStore from '@/store/useUserStore'
+import UserDashboard from '@/app/dashboard/UserDashboard'
+import AdminDashboard from '@/app/dashboard/AdminDashboard'
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+	Button,
+} from '@/components/ui'
+import { useRouter } from 'next/navigation'
+import { useLogout } from '@/hooks/useAuth'
 
 const Dashboard = () => {
-	return <PageGuard requireAuth>This is dashboard</PageGuard>
+	const router = useRouter()
+	const { mutate: logoutMutate } = useLogout()
+	const { user } = useUserStore()
+	const isAdmin = user?.role === 'admin'
+
+	const goLogin = () => router.push('/login')
+
+	return (
+		<PageGuard requireAuth>
+			<Card className="w-[450px]">
+				<CardHeader>
+					<CardTitle>Welcome to Dashboard</CardTitle>
+					<CardDescription>
+						Hello, {user?.username}-{isAdmin ? 'Admin user' : 'user'}
+					</CardDescription>
+				</CardHeader>
+
+				<CardContent>{isAdmin ? <AdminDashboard /> : <UserDashboard />}</CardContent>
+				<CardFooter className="flex justify-between">
+					<Button onClick={goLogin}>Go back to login</Button>
+					<Button onClick={() => logoutMutate()}>logout</Button>
+					<Button>Check your info</Button>
+				</CardFooter>
+			</Card>
+		</PageGuard>
+	)
 }
 
 export default Dashboard

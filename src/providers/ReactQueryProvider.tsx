@@ -8,7 +8,7 @@ export default function ReactQueryProvider({ children }: { children: React.React
 	return (
 		<QueryClientProvider client={reactQueryClient}>
 			{children}
-			{/* <ReactQueryDevtools initialIsOpen={false} />  */}
+			<ReactQueryDevtools initialIsOpen={false} />
 		</QueryClientProvider>
 	)
 }

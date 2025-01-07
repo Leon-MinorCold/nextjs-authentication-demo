@@ -10,21 +10,23 @@ import { routeUtils } from '@/lib/route'
 export default function UserInitializer() {
 	const router = useRouter()
 	const pathname = usePathname()
-	const { setUser, user: storeUser, setInitialized } = useUserStore()
+	const { setUser, user: storeUser, setInitialized, isAuthenticated } = useUserStore()
 	const queryClient = useQueryClient()
 
 	// 检查当前路由是否是公开路由
 	const isPublicRoute = routeUtils.isPublicRoute(pathname)
+	const isProtectedRoute = routeUtils.isProtectedRoute(pathname)
+	const isAdminRoute = routeUtils.isAdminRoute(pathname)
 
+	// Tip: 用户在保护路由和管理员路由下才查询，并且在用户未注销时
 	const {
 		data: user,
-		isLoading,
 		isError,
 		error,
 		isFetched,
 		refetch,
 	} = useUser({
-		enabled: !isPublicRoute, // 只在非公开路由中启用查询
+		enabled: (isProtectedRoute || isAdminRoute) && isAuthenticated,
 	})
 
 	// 如果是公开路由，直接标记为已初始化
@@ -45,6 +47,7 @@ export default function UserInitializer() {
 				queryClient.setQueryData(['user'], null)
 				setInitialized(true)
 				// Todo: 处理错误
+
 				// if (error?.response?.status === 401) {
 				//   // 未登录状态，可以选择重定向到登录页
 				//   // router.push('/login');
@@ -52,7 +55,7 @@ export default function UserInitializer() {
 				// }
 			}
 		}
-	}, [user, isFetched])
+	}, [user, isFetched, error, isError])
 
 	// 监听 store 中的用户状态变化
 	useEffect(() => {
@@ -89,11 +92,6 @@ export default function UserInitializer() {
 	//   window.addEventListener('focus', handleFocus);
 	//   return () => window.removeEventListener('focus', handleFocus);
 	// }, [storeUser, refetch]);
-
-	// 可以根据需要返回加载状态
-	if (isLoading) {
-		return null // 或者返回加载指示器
-	}
 
 	return null
 }

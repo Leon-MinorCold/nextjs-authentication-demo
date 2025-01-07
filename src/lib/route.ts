@@ -54,6 +54,9 @@ export const routeUtils = {
 
 	// 检查是否是受保护路由
 	isProtectedRoute: (pathname: string): boolean => {
+		if (routeUtils.isPublicRoute(pathname)) {
+			return false // 如果是公共路由，直接返回 false
+		}
 		return (
 			routeConfig.protected.some(route => pathname.startsWith(route)) ||
 			routeConfig.api.protected.some(route => pathname.startsWith(route))
