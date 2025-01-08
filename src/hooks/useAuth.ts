@@ -1,16 +1,17 @@
+'use client'
+
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { LoginInput, RegisterInput } from '@/types/user'
 import { useRouter, useSearchParams } from 'next/navigation'
 import useUserStore from '@/store/useUserStore'
 import { getMe, login, logout, register } from '@/services/auth'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 
 export function useLogin() {
 	const router = useRouter()
 	const searchParams = useSearchParams()
 	const setUser = useUserStore(state => state.setUser)
 	const queryClient = useQueryClient()
-	const { toast } = useToast()
 
 	return useMutation({
 		mutationFn: (data: LoginInput) => login(data),
@@ -29,10 +30,7 @@ export function useLogin() {
 				router.push('/dashboard')
 			}
 
-			toast({
-				title: '登录成功, 正在跳转...',
-			})
-
+			toast.success('登录成功')
 			router.refresh()
 		},
 	})
@@ -43,7 +41,6 @@ export function useRegister() {
 	const searchParams = useSearchParams()
 	const setUser = useUserStore(state => state.setUser)
 	const queryClient = useQueryClient()
-	const { toast } = useToast()
 
 	return useMutation({
 		mutationFn: (data: RegisterInput) => register(data),
@@ -59,10 +56,7 @@ export function useRegister() {
 				router.push('/dashboard')
 			}
 
-			toast({
-				title: '注册成功, 正在跳转...',
-				variant: 'default',
-			})
+			toast.success('注册成功')
 
 			router.refresh()
 		},
@@ -73,7 +67,6 @@ export function useLogout() {
 	const router = useRouter()
 	const { logout: storeLogout, setLoggingOut } = useUserStore()
 	const queryClient = useQueryClient()
-	const { toast } = useToast()
 
 	return useMutation({
 		mutationFn: async () => {
@@ -83,9 +76,8 @@ export function useLogout() {
 		onSuccess: () => {
 			storeLogout()
 			queryClient.removeQueries({ queryKey: ['user'] })
-			toast({
-				title: '注销成功',
-			})
+
+			toast.success('注销成功')
 			router.replace('/login')
 			router.refresh()
 		},

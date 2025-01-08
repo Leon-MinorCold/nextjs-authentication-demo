@@ -1,6 +1,7 @@
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
-import { toast } from '@/hooks/use-toast'
 import { HttpCode } from '@/types/api'
+
+import { toast } from 'sonner'
 
 interface ApiError {
 	message: string
@@ -46,9 +47,7 @@ http.interceptors.response.use(
 
 		// 使用服务器返回的错误信息
 		if (data?.message) {
-			toast({
-				variant: 'destructive',
-				title: 'Error',
+			toast.error('Uh oh! Something went wrong.', {
 				description: data.message,
 			})
 			return Promise.reject(data)
@@ -58,9 +57,7 @@ http.interceptors.response.use(
 		if (data?.errors) {
 			const firstError = Object.values(data.errors)[0]?.[0]
 			if (firstError) {
-				toast({
-					variant: 'destructive',
-					title: '验证错误',
+				toast.error('验证错误', {
 					description: firstError,
 				})
 				return Promise.reject({ message: firstError })
@@ -80,9 +77,7 @@ http.interceptors.response.use(
 
 		const message = statusMessages[status || 0] || '请求失败'
 
-		toast({
-			variant: 'destructive',
-			title: '错误',
+		toast.error('Error', {
 			description: message,
 		})
 
