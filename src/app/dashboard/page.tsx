@@ -1,6 +1,5 @@
 'use client'
 
-import PageGuard from '@/components/PageGuard'
 import useUserStore from '@/store/useUserStore'
 import UserDashboard from '@/app/dashboard/UserDashboard'
 import AdminDashboard from '@/app/dashboard/AdminDashboard'
@@ -25,23 +24,21 @@ const Dashboard = () => {
 	const goLogin = () => router.push('/login')
 
 	return (
-		<PageGuard requireAuth>
-			<Card className="w-[450px]">
-				<CardHeader>
-					<CardTitle>Welcome to Dashboard</CardTitle>
-					<CardDescription>
-						Hello, {user?.username}-{isAdmin ? 'Admin user' : 'user'}
-					</CardDescription>
-				</CardHeader>
+		<Card className="w-[450px]">
+			<CardHeader>
+				<CardTitle>Welcome to Dashboard</CardTitle>
+				<CardDescription>
+					Hello, {user?.username}-{isAdmin ? 'Admin user' : 'user'}
+				</CardDescription>
+			</CardHeader>
 
-				<CardContent>{isAdmin ? <AdminDashboard /> : <UserDashboard />}</CardContent>
-				<CardFooter className="flex justify-between">
-					<Button onClick={goLogin}>Go back to login</Button>
-					<Button onClick={() => logoutMutate()}>logout</Button>
-					<Button>Check your info</Button>
-				</CardFooter>
-			</Card>
-		</PageGuard>
+			<CardContent>{isAdmin ? <AdminDashboard /> : <UserDashboard />}</CardContent>
+			<CardFooter className="flex justify-between">
+				<Button onClick={goLogin}>Go back to login</Button>
+				<Button onClick={() => logoutMutate()}>logout</Button>
+				<Button>Check your info</Button>
+			</CardFooter>
+		</Card>
 	)
 }
 

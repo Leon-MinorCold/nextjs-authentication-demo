@@ -8,7 +8,6 @@ const useUserStore = create<UserStore>()(
 			user: null,
 			isInitialized: false,
 			isAuthenticated: false,
-			isLoggingOut: false,
 			setUser: (user: UserInfo | null) =>
 				set({
 					user,
@@ -20,9 +19,7 @@ const useUserStore = create<UserStore>()(
 					user: null,
 					isAuthenticated: false,
 					isInitialized: false,
-					isLoggingOut: false,
 				}),
-			setLoggingOut: isLoggingOut => set({ isLoggingOut }),
 			setInitialized: initialized => set({ isInitialized: initialized }),
 		}),
 		{

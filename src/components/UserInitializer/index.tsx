@@ -29,7 +29,7 @@ export default function UserInitializer() {
 		enabled: (isProtectedRoute || isAdminRoute) && isAuthenticated,
 	})
 
-	// 如果是公开路由，直接标记为已初始化
+	// FixBug: initialized 变量和PageGuard组件联合使用，避免user信息没获取时就跳转到/login页面的bug
 	useEffect(() => {
 		if (isPublicRoute) {
 			setInitialized(true)
@@ -46,8 +46,6 @@ export default function UserInitializer() {
 				setUser(null)
 				queryClient.setQueryData(['user'], null)
 				setInitialized(true)
-				// Todo: 处理错误
-
 				// if (error?.response?.status === 401) {
 				//   // 未登录状态，可以选择重定向到登录页
 				//   // router.push('/login');
@@ -55,7 +53,7 @@ export default function UserInitializer() {
 				// }
 			}
 		}
-	}, [user, isFetched, error, isError])
+	}, [user, isFetched, error, isError, isPublicRoute, setUser, queryClient, setInitialized])
 
 	// 监听 store 中的用户状态变化
 	useEffect(() => {

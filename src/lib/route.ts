@@ -44,6 +44,9 @@ export const routeConfig: RouteConfig = {
 
 // 路由检查工具函数
 export const routeUtils = {
+	// 检查是否为login路由
+	isLoginRoute: (pathname: string): boolean => pathname === '/login',
+
 	// 检查是否是公开路由
 	isPublicRoute: (pathname: string): boolean => {
 		return (

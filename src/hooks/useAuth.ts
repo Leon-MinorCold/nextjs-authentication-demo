@@ -65,12 +65,11 @@ export function useRegister() {
 
 export function useLogout() {
 	const router = useRouter()
-	const { logout: storeLogout, setLoggingOut } = useUserStore()
+	const { logout: storeLogout } = useUserStore()
 	const queryClient = useQueryClient()
 
 	return useMutation({
 		mutationFn: async () => {
-			setLoggingOut(true)
 			return logout()
 		},
 		onSuccess: () => {
