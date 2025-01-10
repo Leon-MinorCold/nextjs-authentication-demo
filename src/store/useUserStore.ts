@@ -6,21 +6,17 @@ const useUserStore = create<UserStore>()(
 	persist(
 		set => ({
 			user: null,
-			isInitialized: false,
 			isAuthenticated: false,
 			setUser: (user: UserInfo | null) =>
 				set({
 					user,
 					isAuthenticated: !!user,
-					isInitialized: true,
 				}),
 			logout: () =>
 				set({
 					user: null,
 					isAuthenticated: false,
-					isInitialized: false,
 				}),
-			setInitialized: initialized => set({ isInitialized: initialized }),
 		}),
 		{
 			name: 'user-storage', // 存储的名称

@@ -22,6 +22,7 @@ const Dashboard = () => {
 	const isAdmin = user?.role === 'admin'
 
 	const goLogin = () => router.push('/login')
+	const goProfile = () => router.push('/profile')
 
 	return (
 		<Card className="w-[450px]">
@@ -36,7 +37,7 @@ const Dashboard = () => {
 			<CardFooter className="flex justify-between">
 				<Button onClick={goLogin}>Go back to login</Button>
 				<Button onClick={() => logoutMutate()}>logout</Button>
-				<Button>Check your info</Button>
+				<Button onClick={goProfile}>Check your info</Button>
 			</CardFooter>
 		</Card>
 	)

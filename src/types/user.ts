@@ -39,9 +39,7 @@ export interface UserInfo {
 
 export interface UserStore {
 	user: UserInfo | null
-	isInitialized: boolean
 	isAuthenticated: boolean
 	setUser: (user: UserInfo | null) => void
-	setInitialized: (initialized: boolean) => void
 	logout: () => void
 }
