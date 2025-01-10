@@ -7,7 +7,7 @@ type ToasterProps = React.ComponentProps<typeof Sonner>
 
 const Toaster = ({ ...props }: ToasterProps) => {
 	const { theme = 'system' } = useTheme()
-	const { position = 'top-right', expand = true, richColors = true } = props
+	const { position = 'top-right', expand = true, richColors = true, duration = 2000 } = props
 
 	return (
 		<Sonner
@@ -16,6 +16,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
 			position={position}
 			expand={expand}
 			richColors={richColors}
+			duration={duration}
 			toastOptions={{
 				classNames: {
 					toast:
