@@ -1,4 +1,5 @@
 import { SignJWT, jwtVerify } from 'jose'
+import { NextResponse } from 'next/server'
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET)
 const REFRESH_SECRET = new TextEncoder().encode(process.env.JWT_REFRESH_TOKEN_SECRET)
@@ -66,4 +67,29 @@ export class JWT {
 			return null
 		}
 	}
+
+	static injectAccessCookie(response: NextResponse, accessToken: string) {
+		if (!accessToken) throw new Error('access_token missed')
+		response.cookies.set('access_token', accessToken, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'lax',
+			maxAge: 15 * 60, // 15分钟
+			path: '/',
+		})
+	}
+
+	static injectRefreshCookie(response: NextResponse, refreshToken: string) {
+		if (!refreshToken) throw new Error('refresh_token missed')
+		response.cookies.set('refresh_token', refreshToken, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'lax',
+			maxAge: 7 * 24 * 60 * 60, // 7天
+			path: '/',
+		})
+	}
+
+	// Todo: 待实现登出功能
+	static async removeAccessToken(response: NextResponse) {}
 }

@@ -69,12 +69,12 @@ export function useLogout() {
 	const queryClient = useQueryClient()
 
 	return useMutation({
-		mutationFn: async () => {
-			return logout()
-		},
+		mutationFn: logout,
 		onSuccess: () => {
 			storeLogout()
-			queryClient.removeQueries({ queryKey: ['user'] })
+
+			// Todo: 这里不知道为啥执行之后会报错
+			// queryClient.removeQueries({ queryKey: ['user'] })
 
 			toast.success('注销成功')
 			router.replace('/login')

@@ -34,18 +34,17 @@ export default function UserInitializer() {
 				queryClient.setQueryData(['user'], user)
 			} else if (isError) {
 				setUser(null)
-				queryClient.setQueryData(['user'], null)
 			}
 		}
 	}, [user, isFetched, error, isError, isPublicRoute, setUser, queryClient])
 
 	// 监听 store 中的用户状态变化
-	useEffect(() => {
-		if (!storeUser) {
-			// 如果 store 中的用户被清除（比如登出），清除 React Query 缓存
-			queryClient.setQueryData(['user'], null)
-		}
-	}, [storeUser, queryClient])
+	// useEffect(() => {
+	// 	if (!storeUser) {
+	// 		// 如果 store 中的用户被清除（比如登出），清除 React Query 缓存
+	// 		queryClient.setQueryData(['user'], null)
+	// 	}
+	// }, [storeUser, queryClient])
 
 	// 定期刷新用户信息
 	useEffect(() => {
