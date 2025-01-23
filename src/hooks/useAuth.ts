@@ -18,6 +18,7 @@ export function useLogin() {
 		onSuccess: response => {
 			// 更新用户状态
 			setUser(response.user)
+
 			// 更新缓存中的用户数据
 			queryClient.setQueryData(['user'], response.user)
 			// 获取重定向 URL
@@ -74,7 +75,7 @@ export function useLogout() {
 			storeLogout()
 
 			// Todo: 这里不知道为啥执行之后会报错
-			// queryClient.removeQueries({ queryKey: ['user'] })
+			queryClient.setQueryData(['user'], null)
 
 			toast.success('注销成功')
 			router.replace('/login')
@@ -87,12 +88,12 @@ export function useUser(options = {}) {
 	return useQuery({
 		queryKey: ['user'],
 		queryFn: getMe,
-		retry: false,
-		staleTime: 5 * 60 * 1000, // 5分钟内数据被认为是新鲜的
-		gcTime: 10 * 60 * 1000, // 改用 gcTime 替代 cacheTime
-		refetchOnWindowFocus: true,
-		refetchOnMount: true,
-		refetchOnReconnect: true,
+		// retry: false,
+		// staleTime: 5 * 60 * 1000, // 5分钟内数据被认为是新鲜的
+		// gcTime: 10 * 60 * 1000, // 改用 gcTime 替代 cacheTime
+		// refetchOnWindowFocus: true,
+		// refetchOnMount: true,
+		// refetchOnReconnect: true,
 		...options,
 	})
 }

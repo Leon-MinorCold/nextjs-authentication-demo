@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { BusinessCode, HttpCode, createApiResponse } from '@/types/api'
+import { JWT } from '@/lib/jwt'
 
 export async function POST() {
 	try {
@@ -8,22 +9,8 @@ export async function POST() {
 			status: HttpCode.OK,
 		})
 
-		// 清除所有认证相关的 cookies，设置为过期
-		response.cookies.set('access_token', '', {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === 'production',
-			sameSite: 'lax',
-			maxAge: 0, // 立即过期
-			path: '/',
-		})
-
-		response.cookies.set('refresh_token', '', {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === 'production',
-			sameSite: 'lax',
-			maxAge: 0, // 立即过期
-			path: '/',
-		})
+		// clear cookie
+		JWT.logout(response)
 
 		// 清除请求头
 		const headers = new Headers(response.headers)
